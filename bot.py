@@ -15,6 +15,7 @@ try:
     import json
     import threading
     import win32api
+    import random
     #import win32gui
     #import customtkinter as ctk
 except Exception as e:
@@ -32,13 +33,13 @@ monitor_height = ctypes.windll.user32.GetSystemMetrics(1)
 
 # START
 print(f'''
-{Fore.RED + Style.NORMAL}      :::::::: {Fore.YELLOW}::::::::::: {Fore.YELLOW + Style.BRIGHT}:::::::::: {Fore.GREEN + Style.NORMAL}:::        {Fore.CYAN}:::        {Fore.BLUE}::::::::::: {Fore.MAGENTA}::::::::::: {Fore.MAGENTA + Style.BRIGHT}:::::::::: 
-{Fore.RED + Style.NORMAL}    :+:    :+:    {Fore.YELLOW}:+:     {Fore.YELLOW + Style.BRIGHT}:+:        {Fore.GREEN + Style.NORMAL}:+:        {Fore.CYAN}:+:            {Fore.BLUE}:+:         {Fore.MAGENTA}:+:     {Fore.MAGENTA + Style.BRIGHT}:+:         
-{Fore.RED + Style.NORMAL}   +:+           {Fore.YELLOW}+:+     {Fore.YELLOW + Style.BRIGHT}+:+        {Fore.GREEN + Style.NORMAL}+:+        {Fore.CYAN}+:+            {Fore.BLUE}+:+         {Fore.MAGENTA}+:+     {Fore.MAGENTA + Style.BRIGHT}+:+          
-{Fore.RED + Style.NORMAL}  +#++:++#++    {Fore.YELLOW}+#+     {Fore.YELLOW + Style.BRIGHT}+#++:++#   {Fore.GREEN + Style.NORMAL}+#+        {Fore.CYAN}+#+            {Fore.BLUE}+#+         {Fore.MAGENTA}+#+     {Fore.MAGENTA + Style.BRIGHT}+#++:++#      
-{Fore.RED + Style.NORMAL}        +#+    {Fore.YELLOW}+#+     {Fore.YELLOW + Style.BRIGHT}+#+        {Fore.GREEN + Style.NORMAL}+#+        {Fore.CYAN}+#+            {Fore.BLUE}+#+         {Fore.MAGENTA}+#+     {Fore.MAGENTA + Style.BRIGHT}+#+            
-{Fore.RED + Style.NORMAL}#+#    #+#    {Fore.YELLOW}#+#     {Fore.YELLOW + Style.BRIGHT}#+#        {Fore.GREEN + Style.NORMAL}#+#        {Fore.CYAN}#+#            {Fore.BLUE}#+#         {Fore.MAGENTA}#+#     {Fore.MAGENTA + Style.BRIGHT}#+#             
-{Fore.RED + Style.NORMAL}########     {Fore.YELLOW}###     {Fore.YELLOW + Style.BRIGHT}########## {Fore.GREEN + Style.NORMAL}########## {Fore.CYAN}########## {Fore.BLUE}###########     {Fore.MAGENTA}###     {Fore.MAGENTA + Style.BRIGHT}##########                      
+{Fore.RED + Style.NORMAL}      :::::::: {Fore.YELLOW}::::::::::: {Fore.YELLOW + Style.BRIGHT}:::::::::: {Fore.GREEN + Style.NORMAL}:::        {Fore.CYAN}:::        {Fore.BLUE}::::::::::: {Fore.MAGENTA}::::::::::: {Fore.MAGENTA + Style.BRIGHT}::::::::::
+{Fore.RED + Style.NORMAL}    :+:    :+:    {Fore.YELLOW}:+:     {Fore.YELLOW + Style.BRIGHT}:+:        {Fore.GREEN + Style.NORMAL}:+:        {Fore.CYAN}:+:            {Fore.BLUE}:+:         {Fore.MAGENTA}:+:     {Fore.MAGENTA + Style.BRIGHT}:+:
+{Fore.RED + Style.NORMAL}   +:+           {Fore.YELLOW}+:+     {Fore.YELLOW + Style.BRIGHT}+:+        {Fore.GREEN + Style.NORMAL}+:+        {Fore.CYAN}+:+            {Fore.BLUE}+:+         {Fore.MAGENTA}+:+     {Fore.MAGENTA + Style.BRIGHT}+:+
+{Fore.RED + Style.NORMAL}  +#++:++#++    {Fore.YELLOW}+#+     {Fore.YELLOW + Style.BRIGHT}+#++:++#   {Fore.GREEN + Style.NORMAL}+#+        {Fore.CYAN}+#+            {Fore.BLUE}+#+         {Fore.MAGENTA}+#+     {Fore.MAGENTA + Style.BRIGHT}+#++:++#
+{Fore.RED + Style.NORMAL}        +#+    {Fore.YELLOW}+#+     {Fore.YELLOW + Style.BRIGHT}+#+        {Fore.GREEN + Style.NORMAL}+#+        {Fore.CYAN}+#+            {Fore.BLUE}+#+         {Fore.MAGENTA}+#+     {Fore.MAGENTA + Style.BRIGHT}+#+
+{Fore.RED + Style.NORMAL}#+#    #+#    {Fore.YELLOW}#+#     {Fore.YELLOW + Style.BRIGHT}#+#        {Fore.GREEN + Style.NORMAL}#+#        {Fore.CYAN}#+#            {Fore.BLUE}#+#         {Fore.MAGENTA}#+#     {Fore.MAGENTA + Style.BRIGHT}#+#
+{Fore.RED + Style.NORMAL}########     {Fore.YELLOW}###     {Fore.YELLOW + Style.BRIGHT}########## {Fore.GREEN + Style.NORMAL}########## {Fore.CYAN}########## {Fore.BLUE}###########     {Fore.MAGENTA}###     {Fore.MAGENTA + Style.BRIGHT}##########
 ''')
 print(Style.RESET_ALL + Fore.RED + "The first Fortnite Festival autoplayer")
 print("Project by jinxthecat_")
@@ -71,6 +72,9 @@ tile_filenames = [
     #tile_filenames.append(f'assets/tile{monitor_height}hold{config["tile_filename_suffix"]}.png')
 if config["color_mode"] != "gray":
     tile_filenames.append(f'assets/tile{monitor_height}orange{config["tile_filename_suffix"]}.png')
+if config["add_battle_tiles"] == "true":
+    tile_filenames.append(f'assets/tile{monitor_height}orangebattle1{config["tile_filename_suffix"]}.png')
+    tile_filenames.append(f'assets/tile{monitor_height}orangebattle2{config["tile_filename_suffix"]}.png')
 if config["detect_diamond_tiles"] == "true":
     tile_filenames.append(f'assets/tile{monitor_height}diamond{config["tile_filename_suffix"]}.png')
 tile_images = [cv2.imread(tile_filename, (cv2.IMREAD_GRAYSCALE if config["color_mode"] == "gray" else cv2.IMREAD_UNCHANGED)) for tile_filename in tile_filenames]
@@ -92,6 +96,18 @@ region_fromtop = (monitor_height - region_height) - height_offset
 width = region_fromleft + region_width
 height = region_fromtop + region_height
 section_size = region_width // number_of_lanes
+
+
+if config["auto_overdrive"] == "true":
+    auto_overdrive = True
+else:
+    auto_overdrive = False
+
+overdrive_base_percentage = config["overdrive_base_chance"]
+overdrive_title_rate = config["overdrive_min_tiles"]
+
+overdrive_percentage = overdrive_base_percentage
+overdrive_title_count = 0
 
 if config["show_debug_visuals"] == "true":
     display_visuals = True
@@ -115,7 +131,8 @@ lane_cooldowns = {
     str(config["key_2"]): 0.0,
     str(config["key_3"]): 0.0,
     str(config["key_4"]): 0.0,
-    str(config["key_5"]): 0.0
+    str(config["key_5"]): 0.0,
+    str(config["key_overdrive"]): 0.0
 }
 
 def cooldown(key):
@@ -169,6 +186,18 @@ while not keyboard.is_pressed(config['exit_key']):
                         press_tile(config["key_4"])
                     elif tile_position[0] <= section_size * 5:
                         press_tile(config["key_5"])
+                    if auto_overdrive:
+                        overdrive_title_count += 1
+                        if overdrive_title_count > overdrive_title_rate:
+                            try_overdrive = random.randint(1,99)
+                            if try_overdrive < overdrive_percentage:
+                                press(config["key_overdrive"])
+                                overdrive_percentage = overdrive_base_percentage
+                                overdrive_title_count = 0
+                            elif overdrive_title_count % overdrive_title_rate == 0:
+                                overdrive_percentage += 10
+                            else:
+                                overdrive_percentage += 1
 
                 if display_visuals:
                     if config["color_mode"] == "gray" and config["viewbox_bgra_color_override"] == "false":

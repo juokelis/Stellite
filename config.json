@@ -1,15 +1,15 @@
 {
     "min_confidence": 0.716,
-    "min_tile_pixels_top_offset": 105,
+    "min_tile_pixels_top_offset": 95,
     "tile_filename_suffix": "",
     "exit_key": "p",
     "keypress_holdtime": 0.05,
-    
+
     "show_debug_visuals": "true",
-    "capture_fps": 120,
+    "capture_fps": 60,
     "color_mode": "gray",
     "viewbox_bgra_color_override": "false",
-    
+
     "use_lane_cooldown": "true",
     "max_lane_cooldown": 0.04,
 
@@ -21,7 +21,14 @@
     "key_3": "j",
     "key_4": "k",
     "key_5": "l",
+    "key_overdrive": "space",
 
-    "detect_diamond_tiles": "false",
-    "diamond_tiles_min_confidence": 0.95
+    "detect_diamond_tiles": "true",
+    "diamond_tiles_min_confidence": 0.91,
+
+    "add_battle_tiles": "true",
+
+    "auto_overdrive": "true",
+    "overdrive_min_tiles": 20,
+    "overdrive_base_chance": 20
 }
